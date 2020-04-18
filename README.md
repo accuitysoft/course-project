@@ -2,44 +2,179 @@
 
 For this project you must work alone to build a backend application consisting of a RESTful JSON API for a contact us form [_(examples)_](https://www.jotform.com/form-templates/category/contact-form) you'll be building out in a later class. All persistent data is to be stored in a simple JSON file that’s operated on through Node’s `fs` module.
 
-User will be required in order to use the API and users must be able to register and login via the JSON API as well. 
+While entries can be submitted by anyone, the listing of messages is restricted to authenticated users only. **Ensure you follow the route structure as set out in the breakdown. All endpoints are assumed to be based off of localhost, unless specified.**
 
 
-## Route Breakdown
+## Route Requirements
 
-1. Route to _create_ an entry when the user submits their contact form.
-1. Route to _create_ or register a user.
-1. Route to log a registered user in to _create_ a JWT (JSON Web Token) token.
-1. Route to _get_ a listing of all submissions when given a valid JWT
+**Note**: Any validation or any other errors for requests should use the appropriate status code, alongside the documented response body for the error.
+
+1. Route to _create_ an entry when the user submits their contact form:
+    `POST /contact_form/entries`
+    
+    Request body expected:
+    ```json
+    {
+        "name": "some string",
+        "email": "address@email.com", // should be a valid email address
+        "phoneNumber": "2343331234",
+        "content": "User's message goes here"
+    }
+    ```
+    When saving the above, a property `id` should be added to the object that uses the format of a `UUID v4`. You can use a package such as [uuid](https://www.npmjs.com/package/uuid) to generate it.
+    Successful request should return the created object, including its `id` with the appropriate status code, e.g.:
+    ```json
+    {
+        "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+        "name": "some string",
+        "email": "address@email.com",
+        "phoneNumber": "2343331234",
+        "content": "User's message goes here"
+    }
+    ```
+
+    In the event the body of the request is missing any of the following properties, or these fields have incorrect values: `name, email, phoneNumber, content`, it should be treated as a `Bad Request`, and the response should be in the format of:
+    ```json
+    {
+        "message": "validation error",
+        "invalid": ["email", "phoneNumber"] // this array should be populated with name of any required property that is missing or has incorrect data
+    }
+    ```
+2. Route to _create_ a user:
+    `POST /users`
+
+    Request body accepted (all properties required):
+    ```json
+    {
+        "name": "Some Name",
+        "password": "password", // must be minimum 8 characters
+        "email": "address@email.com" // must be a valid email address
+    }
+    ```
+    When saving the above, a property `id` should be added to the object that uses the format of a `UUID v4`. You can use a package such as [uuid](https://www.npmjs.com/package/uuid) to generate it.
+    Successful request should return the created object, including its `id` with the appropriate status code, e.g.:
+    ```json
+    {
+        "id": "b34adff-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+        "name": "Some Name",
+        "email": "address@email.com"
+    }
+    ```
+    In the event any of the properties are missing, or the wrong values are provided, alongside the appropriate status code (`Bad Request`), the response should be in the format of:
+    ```json
+    {
+        "message": "validation error",
+        "invalid": ["email"] // this array should be populated with name of any required property that is missing or has incorrect data
+    }
+    ```
+3. Route to log a registered user in to _create_ a JWT (JSON Web Token) token:
+    `POST /auth`
+    
+    Expected request:
+    ```json
+    {
+        "email": "address@email.com",
+        "password": "somepassword"
+    }
+    ```
+    Successful response (alongside the appropriate status code):
+    ```json
+    {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    }
+    ```
+    In the event the email and password do not match, `Unauthorized` status code should be given, with following response body:
+    ```json
+    {
+        "message": "incorrect credentials provided"
+    }
+    ```
+4. Route to _get_ a listing of all submissions when given a valid JWT is provided as part of the :
+    ```
+    GET /contact_form/entries
+    Authorization: bearer token
+    ```
+    Where token is the one received from the route definied above.
+    Upon success, an array consisting of all objects for the contact form entries should be displayed, e.g.:
+    ```json
+    [
+        {
+           "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+            "name": "some string",
+            "email": "address@email.com",
+            "phoneNumber": "2343331234",
+            "content": "User's message goes here"
+        }, {
+            "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+            "name": "another one",
+            "email": "msn@email.com",
+            "phoneNumber": "4",
+            "content": "Another message"
+        }
+    ]
+    ```
+    In the event the JWT is invalid, or not provided, the `Forbidden` status code should be returned alongside with a reason why, e.g.:
+    ```json
+    {
+        "message": "token not provided" // other options for this message include: "token expired"
+    }
+    ```
+
+5. Route to _get_ a specific submission when given an ID alongside a valid JWT:    
+    ```
+    GET /contact_form/entries/:id
+    Authorization: bearer token
+    ```
+    If successful, the response, alongside the appropriate status code should be similar to below based on the submission entry id given:
+    ```json
+    {
+        "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+        "name": "some string",
+        "email": "address@email.com",
+        "phoneNumber": "2343331234",
+        "content": "User's message goes here"
+    }
+    ```
+    If requested ID is not found, `Not Found` status code should be returned alongside a response:
+    ```json
+    {
+        "message": "entry 23bacf-3b7d-4bad-9bdd-2b0d7b3dcb6d not found"
+    }
+    ```
+    In the event the JWT is invalid, or not provided, the `Forbidden` status code should be returned alongside with a reason why, e.g.:
+    ```json
+    {
+        "message": "token not provided" // other options for this message include: "token expired"
+    }
+    ```
 
 
-## Required Fields
+## Parts
 
-These fields represent fields that will be submitted in the form. They will be represented in your JSON as object propreties. They must be validated against the server else respond with an appropriate HTTP status code and does not write the entry to the JSON file (your database).
+### Part 1
+- Gitlab repository is set up, including ignoring `node_modules`
+- Express is running on a high port number such as `3000`, configurable from the environment.
+- Readme file contains information about the project, as well as how to start the application as well as configure the environment.
+- npm is used to add any relevant packages
+- Ensure the appropriate merge request is created, and instructor is assigned to it to mark this part.
 
-- Name
-- Email
-- Phone number
-
-
-## Phases
-
-### Phase One
-- GitHub repository is set up.
-- Express is running on a high port number such as `3000`.
-
-### Phase Two
-- Routes are setup and semantically correct, and respond with a valid and applicable response, e.g. when a new resource is created, the created object with the appropriate status code, for the form submission route.
-- Express default error handling middleware is setup.
+### Part 2
+- Be sure to pull your merged changes once merged, before creating a new branch off of master!
+- Routes are setup and semantically correct, and respond with a valid and applicable response as define dabove.
+- Express default error handling middleware is setup where any route not found should return back the appropriate status code (`Not Found`) and the following response: `{"message": "not found"}`.
 - Express JSON parsing middleware is setup.
+- Expectation is that the project is organized with the appropriate modules, but is not expected to be saving anything to a JSON file. For instance you will have the route files setup, however your routes may only have validation logic attached, and nothing more.
+- Create a merge request, and assign instructor to it to mark this part.
+
 #### Resources
 - [Default error handler](https://expressjs.com/en/guide/error-handling.html#the-default-error-handler)
 
-### Phase Three
-- Submitted entries are saved to the JSON file.
-- Can request an array of objects (in JSON) for all submitted entries.
-- Users can register.
-- Users can login.
+### Part 3
+- There are two resources identified in this project: `users` and `entries`. There should exist two `json` files, in a folder called `data` located where `package.json` is.
+- Create a module that can read and write to the two JSON files
+- Update your endpoints from Part 2 to now read and write to the JSON as required by the route definitions
+- Open a merge request, and assign the instructor, as well as two other students to get marked as well as obtain your peers' feedback
+- Once marked, be sure to merge to master so you can use it for future courses.
 
 
 
