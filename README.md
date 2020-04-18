@@ -170,8 +170,8 @@ While entries can be submitted by anyone, the listing of messages is restricted 
 - [Default error handler](https://expressjs.com/en/guide/error-handling.html#the-default-error-handler)
 
 ### Part 3
-- There are two resources identified in this project: `users` and `entries`. There should exist two `json` files, in a folder called `data` located where `package.json` is.
-- Create a module that can read and write to the two JSON files
+- There are two resources identified in this project: `users` and `entries`. There should exist two `json` files, in a folder called `data` located where `package.json` is. These json files should be ignored from git as well.
+- Create a module that can read and write to the two JSON files. If file does not exist, your module should first create the file in the proper location
 - Update your endpoints from Part 2 to now read and write to the JSON as required by the route definitions
 - Open a merge request, and assign the instructor, as well as two other students to get marked as well as obtain your peers' feedback
 - Once marked, be sure to merge to master so you can use it for future courses.
