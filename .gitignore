@@ -1,3 +1,5 @@
 node_modules/
 .env
 README1.md
+users.json
+entries.json

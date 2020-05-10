@@ -11,21 +11,21 @@ app.use(express.json());
 
 app.use('/contact_form', contactFormEntries)
 app.use('/users', users)
-app.use('/auth',auth)
+app.use('/auth', auth)
 
 // Handle 404 errors
-app.get('*', (req,res,next)=>{
-  return res.status(404).send({message: "Not found"})
-  next();
+app.get('*', (req, res) => {
+  return res.status(404).send({ message: "Not found" })
+
 })
 
 // Global error handler
 app.use((err, req, res, next) => {
   if (res.headersSent) {
-      return next(err)
+    return next(err)
   }
-  
-  return res.status(500).send({error: "Unexpected error found"})
+
+  return res.status(500).send({ error: "Unexpected error found" })
 })
 
 export default app.listen(port, () => console.log(`Express server listening on port ${port}.`))

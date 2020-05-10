@@ -3,6 +3,7 @@ This application is a backend application consisting of a RESTful JSON API for a
 The .env file must be created prior to running with the following values filled out
 PORT=
 JWT_SECRET=
+DB_FILE_LOCATION=
 
 To start the application, run 'npm build start'
 
