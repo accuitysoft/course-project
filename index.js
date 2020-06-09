@@ -15,7 +15,7 @@ app.use('/auth',auth)
 
 // Handle 404 errors
 app.get('*', (req,res,next)=>{
-  return res.status(404).send({message: "Not found"})
+  res.status(404).send({message: "Not found"})
   next();
 })
 

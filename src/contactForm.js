@@ -3,14 +3,14 @@ import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import {validationCheck} from './validator.js'
 import jwt from 'express-jwt'
+import * as db from './dbhandler.js'
 
 const router = express.Router()
-const data = [] //temporary until part 3 of project
 
-router.post('/entries', validationCheck('contact'), (req, res)=>{
+router.post('/entries', validationCheck(['name', 'email', 'phoneNumber', 'content']), async (req, res)=>{
     let body = req.body
     body['id'] = uuidv4()
-    data.push(body)
+    await db.add(body, 'entries');
     return res.status(201).send(body)
 })
 
@@ -31,12 +31,14 @@ router.use(function(err,req,res,next){
     next();
 })
 
-router.get('/entries' , (req,res)=>{
+router.get('/entries' , async (req,res)=>{
+    let data = await db.getAll('entries')
     return res.status(201).send(data)
     
 })
 
-router.get('/entries/:id', (req,res)=>{
+router.get('/entries/:id', async (req,res)=>{
+    let data = await db.getAll('entries')
     const result = data.filter(message => message.id == req.params.id)
     if (result.length > 0) {
         return res.send(result)
