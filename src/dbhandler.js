@@ -1,46 +1,67 @@
-require('dotenv').config()
-import { promises as fs } from 'fs'
-import path from 'path'
+// import { promises as fs } from 'fs'
+// import path from 'path'
 
-// return file path depending on file name
-const file = (fileName) => {
-    let filePath = process.env.DB_FILE_LOCATION + fileName
-    return path.resolve(filePath)
-}
 
-// write to file
-const write = async (filename, data) => {
-    await fs.writeFile(file(filename), JSON.stringify(data))
-}
+// const filepath = (filename) => {
+//     return path.resolve(process.env.DB_FILE_LOCATION + filename + '.json')
+// } 
 
-// adds to file
-const add = async (filename, data) => {
-    try {
-        let content = await getAll(filename)
-        content.push(data)
-        write(filename, content)
-        console.log("file written")
-    } catch (err) {
-        console.error(err)
-        throw err
-    }
-}
 
-// gets data file
-const getAll = async (filename) => {
-    try {
-        let content = await fs.readFile(file(filename))
-        if (content == []) {
-            return content
-        }
-        return JSON.parse(content)
-    } catch (err) {
-        console.error(err)
-        throw err
-    }
-}
+// const write = async (data, filename) => {
+//     let file = filepath(filename);
+//     await fs.writeFile(file, JSON.stringify(data))
+// }
 
-export {
-    add,
-    getAll
+// const add = async (data, filename) => {
+//     try {
+//         let content = await getAll(filename)
+//         content.push(data)
+//         write(content, filename)
+//         console.log("file written")
+//     } catch (err) {
+//         console.error(err)
+//         throw err
+//     }
+
+// }
+
+// const getAll = async (filename) => {
+//     try {
+//         let file = filepath(filename);
+//         let content = await fs.readFile(file)
+//         return JSON.parse(content)
+//     } catch (err) {
+//         console.error(err)
+//         throw err
+//     }
+// }
+
+
+// export {
+//     add,
+//     getAll
+// }
+require('dotenv').config();
+var sql = require("mysql");
+
+const db = sql.createConnection({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASS,
+            port: process.env.DB_PORT,
+            database: process.env.DB_DATABASE
+
+        });
+
+db.connect( err => {
+    if (err) throw err;
+})
+
+exports.query = (sql, param) => {
+    return new Promise((resolve, reject) => {
+        db.query(sql, param, (err, res) => {
+            if (err) reject(err);
+            else resolve(res);
+        })
+    })
 }

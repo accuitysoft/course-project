@@ -1,32 +1,31 @@
-
-//Email validation
-const emailValidator = email => {
+const verifyEmail = email => {
     let emailRegEx = /\S+@\S+\.\S+/
-    if(emailRegEx.test(email)){
+    if (emailRegEx.test(email)) {
         return true
     }
-    return false
 }
 
-
 //validation check for properties of json
-const validationCheck = expectedProps => {
+const validationCheck = expectedKeys => {
     return function (req, res, next) {
-        //expectedProps are the properties we expect from post request
-        //submittedProps are properties in the body
 
-        // find any properties from submittedProps that is missing from expectedProps
-        let submittedProps = Object.keys(req.body)
-        let errors = expectedProps.filter(x => !submittedProps.includes(x))
         
-        //if email has an error and email is not undefined then put email as error. Undefined is used to avoid duplicate email errors.
-        if(!emailValidator(req.body.email) && typeof req.body.email != "undefined"){
-            errors.push('email')
-        }
+        //sets userKeys as properties in the body then filters for what is not in expectedKeys
+        let userKeys = Object.keys(req.body)
+        let errors = expectedKeys.filter(x => !userKeys.includes(x))
 
-        //if password is included in submittedProps and came in from user route and has less than 8 characters
-        if (submittedProps.indexOf('password') > -1 && req.body.password.length < 8){
-            errors.push('password')
+        //if email is included in userKeys, perform validation of email format
+        if (userKeys.indexOf('email') > -1) {
+            if(!verifyEmail(req.body.email)) {
+                errors.push('email')
+            }
+        }
+        
+        //if password is included in userKeys and has less than 8 characters
+        if (userKeys.indexOf('password') > -1) {
+            if (req.body.password.length < 8) {
+                errors.push('password')
+            }
         }
 
         //return status error if any errors found
