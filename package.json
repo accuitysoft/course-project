@@ -1,0 +1,24 @@
+{
+  "name": "course-project",
+  "version": "1.0.0",
+  "description": "Final course project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r esm index.js",
+    "dev": "nodemon -r esm index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/shanemanninglee/course-project.git"
+  },
+  "author": "Shane Lee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/shanemanninglee/course-project/issues"
+  },
+  "homepage": "https://gitlab.com/shanemanninglee/course-project#readme",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "express": "^4.17.1"
+  }
+}
