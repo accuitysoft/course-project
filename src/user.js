@@ -5,11 +5,12 @@ import * as db from './dbhandler.js'
 
 const router = express.Router()
 
-// for testing purposes
-// router.get('/' , async (req,res)=>{
-//     let users = await db.getAll('users');
-//     return res.status(201).send(users)
-// })
+//for testing purposes
+router.get('/' , async (req,res)=>{
+     let users = await db.getAll('users');
+     console.log(users)
+     return res.status(201).send(users)
+ })
 
 router.use(validationCheck(['name', 'password', 'email']))
 

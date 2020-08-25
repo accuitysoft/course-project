@@ -6,17 +6,14 @@ const router = express.Router()
 
 
 router.post('/' , async (req,res)=>{
-    const email = req.body.email
+    const email = req.body.username
     const password = req.body.password
-    let allUsers = await db.getAll('users')
-    let user = allUsers.filter(users => users.email == email)
-    if (user.length == 0) {
-        return res.status(401).send({error: "incorrect credentials provided"})
-    }
-    if (password == user[0].password) {
+    let sql = "SELECT * FROM user WHERE email = ?"
+    let userInfo = await db.query(sql, email)
+    
+    if (userInfo.length != 0 && userInfo[0].password == password) {
         const token = jwtGenerator.sign({email}, process.env.JWT_SECRET, {expiresIn: '10m'})
         res.send({token})
-        
     } else {
         res.status(401).send({error: "incorrect credentials provided"})
     }
