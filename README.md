@@ -10,6 +10,7 @@ DB_PASS=
 DB_PORT=3306
 DB_DATABASE=
 JWT_SECRET=
+DB_FILE_LOCATION=
 
 To start the application, run 'npm build start'
 
